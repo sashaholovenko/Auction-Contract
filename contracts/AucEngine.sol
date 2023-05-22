@@ -6,7 +6,7 @@ contract AucEngine {
     address public owner;
     uint constant DURATION = 2 days; // 2 * 24 * 60 * 60
     uint constant FEE = 10; // 10%
-    // immutable
+    
     struct Auction {
         address payable seller;
         uint startingPrice;
@@ -28,11 +28,11 @@ contract AucEngine {
         owner = msg.sender;
     }
     modifier onlyOwner() {
-        require();
+        require(msg.sender == owner, "you are not an owner");
         _;
     }
     function withdraw() external onlyOwner {
-        //...
+        payable(owner).transfer(address(this).balance);
     }
 
     function createAuction(uint _startingPrice, uint _discountRate, string memory _item, uint _duration) external {
@@ -45,7 +45,7 @@ contract AucEngine {
             startingPrice: _startingPrice,
             finalPrice: _startingPrice,
             discountRate: _discountRate,
-            startAt: block.timestamp, // now
+            startAt: block.timestamp, 
             endsAt: block.timestamp + duration,
             item: _item,
             stopped: false
@@ -78,9 +78,8 @@ contract AucEngine {
         }
         cAuction.seller.transfer(
             cPrice - ((cPrice * FEE) / 100)
-        ); // 500
-        // 500 - ((500 * 10) / 100) = 500 - 50 = 450
-        // Math.floor --> JS
+        );
+        
         emit AuctionEnded(index, cPrice, msg.sender);
     }
 }
